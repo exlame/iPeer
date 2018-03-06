@@ -614,7 +614,7 @@ class User extends AppModel
      * @access public
      * @return array result
      * */
-    function addUserByArray($userList, $updateExisting = false)
+    function addUserByArray($userList, $updateExisting = false, $role_id='5')
     {
         $data = array();
 
@@ -655,7 +655,7 @@ class User extends AppModel
 
             $tmp['creator_id']   = User::get('id');
             $data[$u[User::IMPORT_USERNAME]]['User'] = $tmp;
-            $data[$u[User::IMPORT_USERNAME]]['Role']['RolesUser']['role_id'] = '5';
+            $data[$u[User::IMPORT_USERNAME]]['Role']['RolesUser']['role_id'] = $role_id;
         }
 
         if (!count($data)) {
@@ -726,7 +726,7 @@ class User extends AppModel
             }
         }
 
-        return array('created_students' => $data, 'updated_students' => $existings);
+        return array('created_users' => $data, 'updated_users' => $existings);
     }
 
     /**

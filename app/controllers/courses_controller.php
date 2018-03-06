@@ -297,16 +297,22 @@ class CoursesController extends AppController
        if (!empty($selectedCanvasCourse)) {
            $this->data['Course']['course'] = $selectedCanvasCourse->course_code;
            $this->data['Course']['title'] = $selectedCanvasCourse->name;
-           
+
+           // get instructors and TAs from the Canvas course
            $canvasusers = $selectedCanvasCourse->getUsers(
                $this, User::get('id'),
                array(CanvasCourseUserComponent::ENROLLEMNT_QUERY_TA, CanvasCourseUserComponent::ENROLLMENT_QUERY_TEACHER));
+           // get the corresponding iPeer users
            $iInstructors = $this->_getCorrespondingUser($canvasusers, CanvasCourseUserComponent::ENROLLMENT_TYPE_TEACHER);
            $iTAs = $this->_getCorrespondingUser($canvasusers, CanvasCourseUserComponent::ENROLLMENT_TYPE_TA);
-           $this->data['Instructor'] = $iInstructors;
-           $this->data['Instructor']['Instructor'] = array_keys($iInstructors);
-           $this->data['Tutor'] = $iTAs;
-           $this->data['Tutor']['Tutor'] = array_keys($iTAs);
+
+           // TAs in Canvas will be treated as instructors in iPeer.
+           // Only pre-select those with instructor system role.
+           $iPeerInstructors = $this->User->getInstructors('list', array());
+           $preSelectInstructors = array_intersect_key($iInstructors + $iTAs, $iPeerInstructors);
+
+           $this->data['Instructor'] = $preSelectInstructors;
+           $this->data['Instructor']['Instructor'] = array_keys($preSelectInstructors);
        }
    }
     
